@@ -154,16 +154,6 @@ Expected visual results:
 ### Getting Help
 For additional help or to report issues, please open an issue on the GitHub repository.
 
-## Future Enhancements
-Planned features for Phase 2 and beyond:
-
-1. Real-time video processing
-2. Shape classification (detecting specific shapes)
-3. Color detection and classification
-4. Object tracking
-5. Improved edge detection algorithms
-
----
 
 ## Project Information
 - **Author**: [Your Name]
