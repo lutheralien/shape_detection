@@ -30,7 +30,7 @@ def preprocess_image(image):
         image (numpy.ndarray): Input image in BGR format
         
     Returns:
-        tuple: (RGB image for display, preprocessed grayscale image)
+        tuple: (RGB image for display, grayscale image, blurred grayscale image)
     """
     # Create a copy to avoid modifying the original
     processed = image.copy()
@@ -44,7 +44,8 @@ def preprocess_image(image):
     # Apply Gaussian blur to reduce noise
     blurred = cv2.GaussianBlur(gray, (5, 5), 0)
     
-    return image_rgb, blurred
+    # Return all three images: RGB, grayscale, and blurred
+    return image_rgb, gray, blurred
 
 def detect_edges(image, low_threshold=50, high_threshold=150):
     """
@@ -63,36 +64,42 @@ def detect_edges(image, low_threshold=50, high_threshold=150):
     
     return edges
 
-def display_results(original, preprocessed, edges, output_folder="results"):
+def display_results(original, grayscale, blurred, edges, output_folder="results"):
     """
-    Display the original, preprocessed, and edge-detected images and save screenshots.
+    Display the original, grayscale, blurred, and edge-detected images and save screenshots.
     
     Args:
         original (numpy.ndarray): Original RGB image
-        preprocessed (numpy.ndarray): Preprocessed grayscale image
+        grayscale (numpy.ndarray): Grayscale image
+        blurred (numpy.ndarray): Blurred grayscale image
         edges (numpy.ndarray): Edge-detected binary image
         output_folder (str): Folder to save the output images
     """
     # Create output folder if it doesn't exist
     os.makedirs(output_folder, exist_ok=True)
     
-    # Create a figure with 3 subplots
-    fig, axs = plt.subplots(1, 3, figsize=(15, 5))
+    # Create a figure with 4 subplots
+    fig, axs = plt.subplots(1, 4, figsize=(20, 5))
     
     # Display original image
     axs[0].imshow(original)
     axs[0].set_title('Original Image')
     axs[0].axis('off')
     
-    # Display preprocessed (blurred) image
-    axs[1].imshow(preprocessed, cmap='gray')
-    axs[1].set_title('Preprocessed Image')
+    # Display grayscale image
+    axs[1].imshow(grayscale, cmap='gray')
+    axs[1].set_title('Grayscale Image')
     axs[1].axis('off')
     
-    # Display edge-detected image
-    axs[2].imshow(edges, cmap='gray')
-    axs[2].set_title('Edge Detection')
+    # Display blurred image
+    axs[2].imshow(blurred, cmap='gray')
+    axs[2].set_title('Blurred Image')
     axs[2].axis('off')
+    
+    # Display edge-detected image
+    axs[3].imshow(edges, cmap='gray')
+    axs[3].set_title('Edge Detection')
+    axs[3].axis('off')
     
     # Adjust layout and save figure
     plt.tight_layout()
@@ -100,7 +107,8 @@ def display_results(original, preprocessed, edges, output_folder="results"):
     
     # Save individual images
     cv2.imwrite(f'{output_folder}/original.jpg', cv2.cvtColor(original, cv2.COLOR_RGB2BGR))
-    cv2.imwrite(f'{output_folder}/preprocessed.jpg', preprocessed)
+    cv2.imwrite(f'{output_folder}/grayscale.jpg', grayscale)
+    cv2.imwrite(f'{output_folder}/blurred.jpg', blurred)
     cv2.imwrite(f'{output_folder}/edge_detected.jpg', edges)
     
     print(f"Screenshots saved in the '{output_folder}' folder")
@@ -170,7 +178,7 @@ def main():
     
     # Preprocess the image
     print("Preprocessing image...")
-    rgb_image, preprocessed_image = preprocess_image(original_image)
+    rgb_image, gray_image, blurred_image = preprocess_image(original_image)
     
     # Let user adjust edge detection parameters (optional)
     adjust_params = input("Do you want to adjust edge detection parameters? (y/n): ").lower() == 'y'
@@ -190,11 +198,11 @@ def main():
     
     # Detect edges
     print("Detecting edges...")
-    edges = detect_edges(preprocessed_image, low_threshold, high_threshold)
+    edges = detect_edges(blurred_image, low_threshold, high_threshold)
     
     # Display and save results
     print("Displaying and saving results...")
-    display_results(rgb_image, preprocessed_image, edges, output_folder)
+    display_results(rgb_image, gray_image, blurred_image, edges, output_folder)
     
     print("Processing completed!")
     print(f"All output files are saved in the '{output_folder}' directory")
